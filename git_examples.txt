@@ -1,0 +1,14 @@
+git add .
+git checkout -b test_branch
+git clone git@github.com:SuperStevePrice/test.git ~/test
+git commit -m "Add new files and folders"
+git commit -m "Commit of test_branch May 1, 2023"
+git commit -m "Initial commit"
+git init
+git ls-remote git@github.com:SuperStevePrice/test.git
+git push
+git push -u origin master
+git push -u origin test_branch
+git remote set-url origin git@github.com:SuperStevePrice/test.git
+git status
+ssh -T git@github.com
