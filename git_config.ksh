@@ -7,13 +7,13 @@
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 # PROGRAM:
-#	git_mail.ksh
+#	git_config.ksh
 #	
 # PURPOSE:
 #	Set git user name and email and editor.
 #	
 # USAGE:
-#	git_mail.ksh
+#	git_config.ksh
 #
 #-------------------------------------------------------------------------------
 if [ $# -eq 2 ]
@@ -27,25 +27,22 @@ fi
 
 git=$(which git)
 
-print "$git config --global user.name \"$user\""
 $git config --global user.name "$user"
 if [ $? -eq 0 ]
 then
-	print "Success"
+	print "user.name set to $user"
 fi
 
-print "$git config --global user.email \"$mail\""
 $git config --global user.email "$mail"
 if [ $? -eq 0 ]
 then
-	print "Success"
+	print "user.email set to $mail"
 fi
 
-print "$git config --global core.editor 'vim'"
 $git config --global core.editor "vim"
 if [ $? -eq 0 ]
 then
-	print "Success"
+	print "core.editor set to vim"
 fi
 #-------------------------------------------------------------------------------
 #-- End of File ----------------------------------------------------------------

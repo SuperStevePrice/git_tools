@@ -1,6 +1,11 @@
-#-------------------------------------------------------------------------------
 #!/usr/bin/env ksh
-# $Id$
+#-------------------------------------------------------------------------------
+# Copyright (C) 2023  Steve Price	SuperStevePrice@gmail.com
+#
+#                  GNU GENERAL PUBLIC LICENSE
+#                     Version 3, 29 June 2007
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # PROGRAM:
 #	git_new.ksh
 #	
@@ -13,9 +18,17 @@
 # NOTE:
 # If this script is used by multiple users, make git_user an input.
 git_user="SuperStevePrice"
-
 usage="Usage: $0 repository"
 git=$(which git)
+
+# Function to check for errors
+error_check() {
+	if [ $1 -ne 0 ]
+	then
+		print "Fatal Error!"
+		exit $1
+	fi
+}
 
 if [ ! -x "$git" ]
 then
@@ -33,37 +46,47 @@ fi
 
 # Derive the repository name from the repository
 repository=$(basename "$repository")
-projects_dir=~/Projects
+projects_dir="$HOME/Projects"
 target="${projects_dir}/${repository}"
 
+if [ ! -d "$target" ]
+then
+	print "$target not found, or is not a directory."
+	exit 1
+fi
+
 print "cd $target"
-cd $target
+cd "$target" || error_check $?
 
-#if [ -d "$HOME/${projects_dir}/${repository}" ]
-#then
-#	print "$HOME/${projects_dir}/${repository} exists."
-#	exit 1
-#fi
-
-# Use SSH for no password login to GitHub:
-print "$git remote set-url origin git@github.com:$git_user/$repository.git"
-$git remote set-url origin git@github.com:$git_user/$repository.git
+# Show files to be staged and prompt for confirmation
+print
+print "Files to be staged:"
+$git status --short
+print
+print -n "Proceed with git add .? [y/N]: "
+read -r confirm
+[[ "$confirm" != [yY] ]] && { print "Aborted."; exit 0; }
 
 print "$git init"
-$git init
+$git init || error_check $?
 
 print "$git add ."
-$git add .
+$git add . || error_check $?
 
 print "$git commit -m 'Initial commit of $repository'"
-$git commit -m "Initial commit of $repository"
+$git commit -m "Initial commit of $repository" || error_check $?
 
 print "$git remote add origin git@github.com:$git_user/$repository.git"
-$git remote add origin git@github.com:$git_user/$repository.git 
+$git remote add origin git@github.com:$git_user/$repository.git || error_check $?
 
-#print "$git remote add origin https://github.com/$git_user/$repository.git"
-#$git remote add origin https://github.com/$git_user/$repository.git
+# Detect default branch name
+main=$($git symbolic-ref --short HEAD 2>/dev/null)
+if [ -z "$main" ]
+then
+	main="main"
+fi
 
-print "$git push -u origin main"
-$git push -u origin main
-# EOF --------------------------------------------------------------------------
+print "$git push -u origin $main"
+$git push -u origin "$main" || error_check $?
+#-------------------------------------------------------------------------------
+#-- End of File ----------------------------------------------------------------

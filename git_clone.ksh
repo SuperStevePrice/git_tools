@@ -1,5 +1,11 @@
 #!/usr/bin/env ksh
 #-------------------------------------------------------------------------------
+#         Copyright (C) 2023    Steve Price    SuperStevePrice@gmail.com
+#
+#                       GNU GENERAL PUBLIC LICENSE
+#                        Version 3, 29 June 2007
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # PROGRAM:
 #	git_clone.ksh	
 #	
@@ -10,13 +16,20 @@
 #	$0 repository
 #	
 #-------------------------------------------------------------------------------
-
 # NOTE:
 # If this script is used by multiple users, make git_user an input.
 git_user="SuperStevePrice"
-
-usage="Usage: $0 repository branch_name"
+usage="Usage: $0 repository"
 git=$(which git)
+
+# Function to check for errors
+error_check() {
+	if [ $1 -ne 0 ]
+	then
+		print "Fatal Error!"
+		exit $1
+	fi
+}
 
 if [ ! -x "$git" ]
 then
@@ -34,22 +47,24 @@ fi
 
 # Derive the repository name from the repository
 repository=$(basename "$repository")
-projects_dir=~/Projects
+projects_dir="$HOME/Projects"
 target="${projects_dir}/${repository}"
 
 print "ls -ld $projects_dir"
 ls -ld $projects_dir
 print
-print "cd $projects_dir"
-cd $projects_dir
 
-if [ -d "$HOME/${projects_dir}/${repository}" ]
+print "cd $projects_dir"
+cd $projects_dir || error_check $?
+
+if [ -d "${target}" ]
 then
-	print "mv $HOME/${projects_dir}/${repository} $HOME/${projects_dir}/${repository}.backup"
-	mv $HOME/${projects_dir}/${repository} $HOME/${projects_dir}/${repository}.backup
+	print "mv ${target} ${target}.backup"
+	mv "${target}" "${target}.backup" || error_check $?
 fi
 
 print "git clone git@github.com:$git_user/$repository.git $target"
-git clone git@github.com:$git_user/$repository.git $target
-
-exit $?
+$git clone git@github.com:$git_user/$repository.git $target
+error_check $?
+#-------------------------------------------------------------------------------
+#-- End of File ----------------------------------------------------------------
